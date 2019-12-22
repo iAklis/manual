@@ -1,7 +1,7 @@
 # 关于 eBPF
 
 
-关于 eBPF 指令集的[官方文档位][1] 于 Linux repo 的 Networking 中, 实际上也能说明它原来是设计用于网络过滤的嘛.
+关于 eBPF 指令集的 [官方文档][1] 位于 Linux repo 的 Networking 中, 实际上也能说明它原来是设计用于网络过滤的嘛.
 
 关于设计过程的一些 QA 也有很有价值的记录.
 
@@ -665,19 +665,6 @@ through the pointer will give "invalid access to packet" error` 错误.
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 [1]: https://www.kernel.org/doc/Documentation/networking/filter.txt
 
 参考资料:
@@ -685,7 +672,9 @@ through the pointer will give "invalid access to packet" error` 错误.
 https://www.kernel.org/doc/Documentation/networking/filter.txt
 
 include/uapi/linux/filter.h
+
 include/uapi/linux/bpf.h
+
 include/uapi/linux/bpf_common.h
 
 https://github.com/iovisor/bpf-docs/blob/b5ac15bfefc25fb13b4178a3fed2932fc2a795f1/eBPF.md
