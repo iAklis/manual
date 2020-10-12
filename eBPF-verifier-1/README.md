@@ -31,9 +31,9 @@ bpf_trace_printk(fmt, sizeof(fmt), fname);
 
 ```c
 # Code 2
-**26: (bf) r1 = r10
+26: (bf) r1 = r10
 ; 
-27: (07) r1 += -104**
+27: (07) r1 += -104
 ; res = bpf_probe_read_kernel_str(&fname, sizeof(dentry->d_iname), dentry->d_iname);
 28: (b7) r2 = 32
 29: (bf) r3 = r8
@@ -47,9 +47,9 @@ regs=4 stack=0 before 28: (b7) r2 = 32
 ; if (res > 5) {
 34: (6d) if r1 s> r0 goto pc+7
  R0_w=inv(id=0,umin_value=6,umax_value=2147483647,var_off=(0x0; 0x7fffffff)) R1_w=inv6 R6=ctx(id=0,off=0,imm=0) R7=inv(id=0) R8=inv(id=0) R10=fp0 fp-8=mmmmmmmm fp-16=00000000 fp-24=00000000 fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmmmmmm fp-88=mmmmmmmm fp-96=mmmmmmmm fp-104=mmmmmmmm fp-112=??mmmmmm fp-120=inv7308604895909997673 fp-128=inv7358993341648040547
-**35: (bf) r1 = r10**
-**; fname[res-2] = '*';
-36: (07) r1 += -104**
+35: (bf) r1 = r10
+; fname[res-2] = '*';
+36: (07) r1 += -104
 37: (0f) r0 += r1
 last_idx 37 first_idx 31
 regs=1 stack=0 before 36: (07) r1 += -104
@@ -64,13 +64,13 @@ last_idx 30 first_idx 0
 regs=1 stack=0 before 30: (85) call bpf_probe_read_kernel_str#115
 38: (b7) r1 = 42
 ; fname[res-3] = '*';
-**39: (73) *(u8 *)(r0 -3) = r1**
-**variable stack access var_off=(0x0; 0x7fffffff) off=-107 size=1
+39: (73) *(u8 *)(r0 -3) = r1
+variable stack access var_off=(0x0; 0x7fffffff) off=-107 size=1
 processed 38 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1**
 ```
 
-- **Instruction 26-27/35-36:**  r10 当作 rbp 帧指针。 r10 - 104 是指从栈底到 -104 的地方，在这里就是 fname 指向的地址。
-- **Instruction 39**: `variable stack access`  表示原本指向栈的指针 r10 与常数偏移 -107 *-104  + (-3)* 之后，再加上了一个变量偏移。这个时候 verifier 是比较懒地去复用上面的有效范围，也不是重新判断寻址范围是否在总的堆栈范围之内。而是因为不确定性就拒绝加载，有点过于严格反而影响了体验。希望也应该是 verifier 未来会改进的一个点。
+- `Instruction 26-27/35-36:`  r10 当作 rbp 帧指针。 r10 - 104 是指从栈底到 -104 的地方，在这里就是 fname 指向的地址。
+- `Instruction 39`: `variable stack access`  表示原本指向栈的指针 r10 与常数偏移 -107 *-104  + (-3)* 之后，再加上了一个变量偏移。这个时候 verifier 是比较懒地去复用上面的有效范围，也不是重新判断寻址范围是否在总的堆栈范围之内。而是因为不确定性就拒绝加载，有点过于严格反而影响了体验。希望也应该是 verifier 未来会改进的一个点。
 
 `Rx_w` 之类的值是 bpf verifier 额外输出的上下文调试信息。
 
@@ -147,10 +147,10 @@ regs=4 stack=0 before 35: (b7) r2 = 32
 39: (c7) r0 s>>= 32
 40: (b7) r1 = 6
 ; if (res > 5) {
-**41: (6d) if r1 s> r0 goto pc+5
- R0_w=inv(id=0,umin_value=6,umax_value=2147483647,var_off=(0x0; 0x7fffffff)) R1_w=inv6 R6=ctx(id=0,off=0,imm=0) R7=inv(id=0) R8=map_value(id=0,off=0,ks=4,vs=32,imm=0) R9=inv(id=0) R10=fp0 fp-8=mmmmmmmm fp-16=00000000 fp-24=00000000 fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmm???? fp-88=??mmmmmm fp-96=inv7308604895909997673 fp-104=inv7358993341648040547**
+41: (6d) if r1 s> r0 goto pc+5
+ R0_w=inv(id=0,umin_value=6,umax_value=2147483647,var_off=(0x0; 0x7fffffff)) R1_w=inv6 R6=ctx(id=0,off=0,imm=0) R7=inv(id=0) R8=map_value(id=0,off=0,ks=4,vs=32,imm=0) R9=inv(id=0) R10=fp0 fp-8=mmmmmmmm fp-16=00000000 fp-24=00000000 fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmm???? fp-88=??mmmmmm fp-96=inv7308604895909997673 fp-104=inv7358993341648040547
 ; fname[res-2] = '*';
-**42: (0f) r0 += r8**
+42: (0f) r0 += r8
 last_idx 42 first_idx 38
 regs=1 stack=0 before 41: (6d) if r1 s> r0 goto pc+5
 regs=1 stack=0 before 40: (b7) r1 = 6
@@ -162,16 +162,16 @@ last_idx 37 first_idx 20
 regs=1 stack=0 before 37: (85) call bpf_probe_read_kernel_str#115
 43: (b7) r1 = 42
 ; fname[res-3] = '*';
-**44: (73) *(u8 *)(r0 -3) = r1**
+44: (73) *(u8 *)(r0 -3) = r1
  R0_w=map_value(id=0,off=0,ks=4,vs=32,umin_value=6,umax_value=2147483647,var_off=(0x0; 0x7fffffff)) R1_w=inv42 R6=ctx(id=0,off=0,imm=0) R7=inv(id=0) R8=map_value(id=0,off=0,ks=4,vs=32,imm=0) R9=inv(id=0) R10=fp0 fp-8=mmmmmmmm fp-16=00000000 fp-24=00000000 fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmm???? fp-88=??mmmmmm fp-96=inv7308604895909997673 fp-104=inv7358993341648040547
 R0 unbounded memory access, make sure to bounds check any array access into a map
 processed 42 insns (limit 1000000) max_states_per_insn 0 total_states 2 peak_states 2 mark_read 1
 ```
 
-- Instruction 38 / 39 这种左右摇摆的是因为 r0 的返回类型是 int 只取低 32 位。
-- **Instruction 41** 显式判断得到了 r0 的下边界。r0 是调用 func  **`bpf_probe_read_str`** 之后保存其返回值的寄存器。verifier prune 之后得到的 r0 接下来取值范围是`[6, 2147483647)` 。
-- **Instruction 42** 在此上下文中， R8 保存的是 fname 指向的地址，**R0 + R8** 就是 &fname[res], 呼应 **Instruction 44** 中的 **r0**-3,既 **R0+R8**-3 , 就是 &fname[res-3]。
-- Instruction 44 在这里是对 map 上的内存的访问，R0 既 map_value fname.  显式 explicit 地为字符串数组写入`'\*'`。
+- `Instruction 38 / 39` 这种左右摇摆的是因为 r0 的返回类型是 int 只取低 32 位。
+- `Instruction 41` 显式判断得到了 r0 的下边界。r0 是调用 func  **`bpf_probe_read_str`** 之后保存其返回值的寄存器。verifier prune 之后得到的 r0 接下来取值范围是`[6, 2147483647)` 。
+- `Instruction 42` 在此上下文中， R8 保存的是 fname 指向的地址，**R0 + R8** 就是 &fname[res], 呼应 **Instruction 44** 中的 **r0**-3,既 **R0+R8**-3 , 就是 &fname[res-3]。
+- `Instruction 44` 在这里是对 map 上的内存的访问，R0 既 map_value fname.  显式 explicit 地为字符串数组写入`'\*'`。
 
 上面的错误信息总结一下就是因为我们只通过对 `res` 进行下边界`if (res >5)`的判断，进入到修改字符串数据的作用域时我们可以确定 res 的取值范围是 `[6,` ，这是通过 verifier 的静态分析手段确定的。 但是由于我们没有进行上边界的检查，verifier 无法确定，所以抛出了错误。
 
@@ -210,8 +210,8 @@ regs=4 stack=0 before 35: (b7) r2 = 32
 39: (07) r1 += -6
 40: (67) r1 <<= 32
 41: (77) r1 >>= 32
-**42: (25) if r1 > 0x19 goto pc+7**
- R0=inv(id=0) **R1_w=inv(id=0,umax_value=25,var_off=(0x0; 0x1f))** R6=ctx(id=0,off=0,imm=0) R7=inv(id=0) R8=map_value(id=0,off=0,ks=4,vs=32,imm=0) R9=inv(id=0) R10=fp0 fp-8=mmmmmmmm fp-16=00000000 fp-24=00000000 fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmm???? fp-88=??mmmmmm fp-96=inv7308604895909997673 fp-104=inv7358993341648040547
+42: (25) if r1 > 0x19 goto pc+7
+ R0=inv(id=0) R1_w=inv(id=0,umax_value=25,var_off=(0x0; 0x1f)) R6=ctx(id=0,off=0,imm=0) R7=inv(id=0) R8=map_value(id=0,off=0,ks=4,vs=32,imm=0) R9=inv(id=0) R10=fp0 fp-8=mmmmmmmm fp-16=00000000 fp-24=00000000 fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmm???? fp-88=??mmmmmm fp-96=inv7308604895909997673 fp-104=inv7358993341648040547
 ; fname[res-2] = '*';
 43: (67) r0 <<= 32
 44: (c7) r0 s>>= 32
@@ -233,7 +233,7 @@ value -2147483648 makes map_value pointer be out of bounds
 processed 43 insns (limit 1000000) max_states_per_insn 0 total_states 2 peak_states 2 mark_read 1
 ```
 
-- **Instruction 42** 显示出现其为诡异的问题，明明是显示判断了最大值和最小值的范围，为什么在bpf code 里面只编译成 **if r1 > 0x19 goto pc+7** ，这大概是 LLVM 本身的某种问题。verifier 得到R1 的一个魔幻的范围 小于 25
+- `Instruction 42` 显示出现其为诡异的问题，明明是显示判断了最大值和最小值的范围，为什么在bpf code 里面只编译成 **if r1 > 0x19 goto pc+7** ，这大概是 LLVM 本身的某种问题。verifier 得到R1 的一个魔幻的范围 小于 25
 
 LLVM？ 我躲开我躲开。
 
@@ -261,7 +261,7 @@ LLVM？ 我躲开我躲开。
 40: (67) r1 <<= 32
 41: (77) r1 >>= 32
 42: (25) if r1 > 0x19 goto pc+7
- **R0=inv(id=0) R1_w=inv(id=0,umax_value=25,var_off=(0x0; 0x1f))** R6=ctx(id=0,off=0,imm=0) R7=inv(id=0) R8=map_value(id=0,off=0,ks=4,vs=32,imm=0) R9=inv(id=0) R10=fp0 fp-8=mmmmmmmm fp-16=00000000 fp-24=00000000 fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmm???? fp-88=??mmmmmm fp-96=inv7308604895909997673 fp-104=inv7358993341648040547
+ R0=inv(id=0) R1_w=inv(id=0,umax_value=25,var_off=(0x0; 0x1f)) R6=ctx(id=0,off=0,imm=0) R7=inv(id=0) R8=map_value(id=0,off=0,ks=4,vs=32,imm=0) R9=inv(id=0) R10=fp0 fp-8=mmmmmmmm fp-16=00000000 fp-24=00000000 fp-32=00000000 fp-40=00000000 fp-48=00000000 fp-56=00000000 fp-64=00000000 fp-72=00000000 fp-80=mmmm???? fp-88=??mmmmmm fp-96=inv7308604895909997673 fp-104=inv7358993341648040547
 ; fname[res-2] = '*';
 ```
 
@@ -329,10 +329,10 @@ int handle_hingress(struct __sk_buff *skb)
 	struct udphdr *udp = data + sizeof(*eth) + sizeof(*iph);
 	void *data_end = (void *)(long)skb->data_end;
 	char fmt[] = "tigger at HostIngress len %d %u \n";
-	**void *offset = data + sizeof(*eth) + sizeof(*iph) + sizeof(*udp);**
+	void *offset = data + sizeof(*eth) + sizeof(*iph) + sizeof(*udp);
 	/* single length check */
-	**if (offset > data_end)
-		return 0;**
+	if (offset > data_end)
+		return 0;
 
 	bpf_trace_printk(fmt, sizeof(fmt), data_end - offset, ***(uint*)(offset + 1)**);
 	return TC_ACT_OK;
@@ -366,27 +366,27 @@ Verifier analysis:
 13: (18) r2 = 0x6120726567676974
 15: (7b) *(u64 *)(r10 -48) = r2
 16: (bf) r2 = r1
-**17: (07) r2 += 42**
-**18: (2d) if r2 > r3 goto pc+6
+17: (07) r2 += 42
+18: (2d) if r2 > r3 goto pc+6
  *R1_w=pkt(id=0,off=0,r=42,imm=0) R2_w=pkt(id=0,off=42,r=42,imm=0)* 
  R3_w=pkt_end(id=0,off=0,imm=0) R10=fp0 fp-16=??????mm fp-24_w=inv2338816402538176622 fp-32_w=inv7308251975544828519 fp-40_w=inv7947011056609009780 fp-48_w=inv6998719600785844596**
 19: (1f) r3 -= r2
-**20: (61) r4 = *(u32 *)(r1 +43)**
-invalid access to packet, **off=43 size=4**, **R1(id=0,off=0,r=42)**
+20: (61) r4 = *(u32 *)(r1 +43)
+invalid access to packet, off=43 size=4, R1(id=0,off=0,r=42)
 R1 offset is outside of the packet
 processed 17 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
 ```
 
 其中 `sizeof(*eth) + sizeof(*iph) + sizeof(*udp)` 的值是 42.
 
-- **Instruction 17**  对 offset 显示赋值，它是一个指针，偏移处是 UDP 包 data 开始处。 offset = data + 42。
-- **Instruction 18**  进行**显式的边界检查**（bound check）如果超过边界（r3，即 data_end)，就执行 goto, 避免访问。
-- **Instruction 20  访问指针所指向的地址。寻址**访问当然是通过 *** 访问一个指针。**这是 r1 是一个指向 **`包`** 的指针，所以在这里（指当前上下文 tc filter bpf prog中）它属于一个 PTR_TO_CTX ，通过 `is_valid_access`验证。 [https://github.com/iAklis/manual/tree/master/eBPF#对-ctx-的访问限制](https://github.com/iAklis/manual/tree/master/eBPF#%E5%AF%B9-ctx-%E7%9A%84%E8%AE%BF%E9%97%AE%E9%99%90%E5%88%B6)
+- `Instruction 17`  对 offset 显示赋值，它是一个指针，偏移处是 UDP 包 data 开始处。 offset = data + 42。
+- `Instruction 18`  进行**显式的边界检查**（bound check）如果超过边界（r3，即 data_end)，就执行 goto, 避免访问。
+- `Instruction 20`  访问指针所指向的地址。**寻址访问** 当然是通过 `*` 访问一个指针。这是 r1 是一个指向 **`包`** 的指针，所以在这里（指当前上下文 tc filter bpf prog中）它属于一个 PTR_TO_CTX ，通过 `is_valid_access`验证。 [https://github.com/iAklis/manual/tree/master/eBPF#对-ctx-的访问限制](https://github.com/iAklis/manual/tree/master/eBPF#%E5%AF%B9-ctx-%E7%9A%84%E8%AE%BF%E9%97%AE%E9%99%90%E5%88%B6)
 
 对比 Instruction 19 ，也能直接地感受到 `*` 寻址操作才会触发验证器的检查。
 
 ```
-***R1_w=pkt(id=0,off=0,r=42,imm=0)***
+R1_w=pkt(id=0,off=0,r=42,imm=0)
 ```
 
 `id=0`指没有额外的变量与该寄存器运算，`off=0` 指没有额外的常量与该寄存器运算，`r=42` 指的是合法的访问偏移,即 `[R1, R1 + 42)`。
