@@ -427,4 +427,4 @@ processed 17 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_sta
 
 [https://github.com/iAklis/manual/tree/master/eBPF](https://github.com/iAklis/manual/tree/master/eBPF)
 
-[https://www.notion.so/verifier-761c0980dfd94dc385c1beeaa70f481d#b859e224b0d349b691fc3cdfbf1cba1a](https://www.notion.so/verifier-761c0980dfd94dc385c1beeaa70f481d#b859e224b0d349b691fc3cdfbf1cba1a)
+[https://www.kernel.org/doc/Documentation/networking/filter.txt](https://www.kernel.org/doc/Documentation/networking/filter.txt)
