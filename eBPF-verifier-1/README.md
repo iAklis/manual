@@ -66,11 +66,11 @@ regs=1 stack=0 before 30: (85) call bpf_probe_read_kernel_str#115
 ; fname[res-3] = '*';
 39: (73) *(u8 *)(r0 -3) = r1
 variable stack access var_off=(0x0; 0x7fffffff) off=-107 size=1
-processed 38 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1**
+processed 38 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
 ```
 
-- `Instruction 26-27/35-36:`  r10 当作 rbp 帧指针。 r10 - 104 是指从栈底到 -104 的地方，在这里就是 fname 指向的地址。
-- `Instruction 39`: `variable stack access`  表示原本指向栈的指针 r10 与常数偏移 -107 *-104  + (-3)* 之后，再加上了一个变量偏移。这个时候 verifier 是比较懒地去复用上面的有效范围，也不是重新判断寻址范围是否在总的堆栈范围之内。而是因为不确定性就拒绝加载，有点过于严格反而影响了体验。希望也应该是 verifier 未来会改进的一个点。
+- `Instruction 26-27/35-36`  r10 当作 rbp 帧指针。 r10 - 104 是指从栈底到 -104 的地方，在这里就是 fname 指向的地址。
+- `Instruction 39` 指令中 `variable stack access` 表示原本指向栈的指针 r10 与常数偏移 -107 *-104  + (-3)* 之后，再加上了一个变量偏移。这个时候 verifier 是比较懒地去复用上面的有效范围，也不是重新判断寻址范围是否在总的堆栈范围之内。而是因为不确定性就拒绝加载，有点过于严格反而影响了体验。希望也应该是 verifier 未来会改进的一个点。
 
 `Rx_w` 之类的值是 bpf verifier 额外输出的上下文调试信息。
 
@@ -110,9 +110,9 @@ processed 38 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_sta
 
 ```c
 struct {
-	__uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
+    __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
     __uint(key_size, sizeof(u32));
-	__uint(value_size, PATH_MAX);
+    __uint(value_size, PATH_MAX);
     __uint(max_entries, 1);
 } tmp_path_map SEC(".maps");
 ...
@@ -168,7 +168,7 @@ R0 unbounded memory access, make sure to bounds check any array access into a ma
 processed 42 insns (limit 1000000) max_states_per_insn 0 total_states 2 peak_states 2 mark_read 1
 ```
 
-- `Instruction 38 / 39` 这种左右摇摆的是因为 r0 的返回类型是 int 只取低 32 位。
+- `Instruction 38/39` 这种左右摇摆的是因为 r0 的返回类型是 int 只取低 32 位。
 - `Instruction 41` 显式判断得到了 r0 的下边界。r0 是调用 func  **`bpf_probe_read_str`** 之后保存其返回值的寄存器。verifier prune 之后得到的 r0 接下来取值范围是`[6, 2147483647)` 。
 - `Instruction 42` 在此上下文中， R8 保存的是 fname 指向的地址，**R0 + R8** 就是 &fname[res], 呼应 **Instruction 44** 中的 **r0**-3,既 **R0+R8**-3 , 就是 &fname[res-3]。
 - `Instruction 44` 在这里是对 map 上的内存的访问，R0 既 map_value fname.  显式 explicit 地为字符串数组写入`'\*'`。
@@ -189,9 +189,9 @@ if (!fname)
 char fmt[] = "create file name %s \n";
 res = bpf_probe_read_kernel_str(fname, sizeof(dentry->d_iname), dentry->d_iname);
 if ((res > 5) && (res < PATH_MAX)) {
-			fname[res-2] = '*';
-			fname[res-3] = '*';
-			fname[res-4] = '*';
+    fname[res-2] = '*';
+    fname[res-3] = '*';
+    fname[res-4] = '*';
 }
 
 bpf_trace_printk(fmt, sizeof(fmt), fname);
@@ -290,13 +290,13 @@ LLVM 的优化使得它会把 (r0 > 5) 与 (r0 < PATH_MAX) 合并成 (6,24]，�
 int res;
 char * fname = bpf_map_lookup_elem(&tmp_path_map, &index);
 if (!fname)
-      return 0;
+    return 0;
 char fmt[] = "create file name %s \n";
 res = bpf_probe_read_kernel_str(fname, sizeof(dentry->d_iname), dentry->d_iname);
 if ((res > 5)) {
-	fname[res-2 & 0x1F] = '*';
-	fname[res-3 & 0x1F] = '*';
-	fname[res-4 & 0x1F] = '*';
+    fname[res-2 & 0x1F] = '*';
+    fname[res-3 & 0x1F] = '*';
+    fname[res-4 & 0x1F] = '*';
 }
 
 bpf_trace_printk(fmt, sizeof(fmt), fname);
@@ -368,8 +368,8 @@ Verifier analysis:
 16: (bf) r2 = r1
 17: (07) r2 += 42
 18: (2d) if r2 > r3 goto pc+6
- *R1_w=pkt(id=0,off=0,r=42,imm=0) R2_w=pkt(id=0,off=42,r=42,imm=0)* 
- R3_w=pkt_end(id=0,off=0,imm=0) R10=fp0 fp-16=??????mm fp-24_w=inv2338816402538176622 fp-32_w=inv7308251975544828519 fp-40_w=inv7947011056609009780 fp-48_w=inv6998719600785844596**
+ R1_w=pkt(id=0,off=0,r=42,imm=0) R2_w=pkt(id=0,off=42,r=42,imm=0)
+ R3_w=pkt_end(id=0,off=0,imm=0) R10=fp0 fp-16=??????mm fp-24_w=inv2338816402538176622 fp-32_w=inv7308251975544828519 fp-40_w=inv7947011056609009780 fp-48_w=inv6998719600785844596
 19: (1f) r3 -= r2
 20: (61) r4 = *(u32 *)(r1 +43)
 invalid access to packet, off=43 size=4, R1(id=0,off=0,r=42)
@@ -383,7 +383,7 @@ processed 17 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_sta
 - `Instruction 18`  进行**显式的边界检查**（bound check）如果超过边界（r3，即 data_end)，就执行 goto, 避免访问。
 - `Instruction 20`  访问指针所指向的地址。**寻址访问** 当然是通过 `*` 访问一个指针。这是 r1 是一个指向 **`包`** 的指针，所以在这里（指当前上下文 tc filter bpf prog中）它属于一个 PTR_TO_CTX ，通过 `is_valid_access`验证。 [https://github.com/iAklis/manual/tree/master/eBPF#对-ctx-的访问限制](https://github.com/iAklis/manual/tree/master/eBPF#%E5%AF%B9-ctx-%E7%9A%84%E8%AE%BF%E9%97%AE%E9%99%90%E5%88%B6)
 
-对比 Instruction 19 ，也能直接地感受到 `*` 寻址操作才会触发验证器的检查。
+对比 `Instruction 19` ，也能直接地感受到 `*` 寻址操作才会触发验证器的检查。
 
 ```
 R1_w=pkt(id=0,off=0,r=42,imm=0)
